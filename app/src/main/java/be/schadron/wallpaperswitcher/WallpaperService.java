@@ -33,19 +33,19 @@ public class WallpaperService extends IntentService {
             if (intent.getExtras().getInt("request code") != 0) {
                 int resId = getResources().getIdentifier("w".concat(String.valueOf(intent.getExtras().getInt("request code"))), "drawable", "be.schadron.wallpaperswitcher");
 
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inScaled = true;
+                //BitmapFactory.Options options = new BitmapFactory.Options();
+                //options.inScaled = true;
 
                 DisplayMetrics metrics = new DisplayMetrics();
                 ((WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getMetrics(metrics);
-                Bitmap tempbitMap = BitmapFactory.decodeResource(getApplicationContext().getResources(), resId, options);
-                Bitmap bitmap = Bitmap.createScaledBitmap(tempbitMap, metrics.widthPixels, metrics.heightPixels, true);
+                //Bitmap tempbitMap = BitmapFactory.decodeResource(getApplicationContext().getResources(), resId, options);
+                //Bitmap bitmap = Bitmap.createScaledBitmap(tempbitMap, metrics.widthPixels, metrics.heightPixels, true);
 
 
                 wallpaperMgr.setWallpaperOffsetSteps(0.5f, 1f);
                 wallpaperMgr.suggestDesiredDimensions(metrics.widthPixels, metrics.heightPixels);
-                wallpaperMgr.setBitmap(bitmap);
-                //wallpaperMgr.setResource(resId);
+                wallpaperMgr.setResource(resId);
+
             }
         } catch (IOException e) {
             e.printStackTrace();

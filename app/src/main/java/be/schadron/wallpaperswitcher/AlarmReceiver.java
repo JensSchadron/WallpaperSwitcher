@@ -18,7 +18,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         REQUEST_CODES.put(20701, "08:30");
         REQUEST_CODES.put(20702, "12:00");
         REQUEST_CODES.put(20703, "20:00");
-        REQUEST_CODES.put(20704, "21:00");
+        REQUEST_CODES.put(20704, "21:30");
     }
 
     @Override
