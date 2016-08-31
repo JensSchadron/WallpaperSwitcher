@@ -10,12 +10,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 public class MainActivity extends AppCompatActivity {
     private final static String PREF_SERV_ENABLED_KEY = "serv_enabled";
+    private final static String PREF_SERV_STATUS_KEY = "serv_status";
 
     private AlarmManager alarmMgr;
 
@@ -31,7 +33,31 @@ public class MainActivity extends AppCompatActivity {
 
         pref = getSharedPreferences("ServiceData", MODE_PRIVATE);
 
+        setupStatus();
         setupOnClickListeners();
+    }
+
+    private void setupStatus() {
+        final TextView tvServStatus = (TextView) findViewById(R.id.tv_service_status);
+
+        String strStatus;
+
+        switch (checkServiceStatus()) {
+            case 0:
+                strStatus = "Up and running";
+                break;
+            case 1:
+                strStatus = "Shutdown";
+                break;
+            case 2:
+                strStatus = "An error occured";
+                break;
+            default:
+                strStatus = "";
+        }
+
+        tvServStatus.setText(strStatus);
+
     }
 
     public void setupOnClickListeners() {
@@ -39,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         final Button btnStop = (Button) findViewById(R.id.btnStop);
 
 
-        if(isServiceEnabled()) {
+        if (checkServiceStatus() == 0) {
             btnStart.setEnabled(false);
         } else {
             btnStop.setEnabled(false);
@@ -50,6 +76,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 scheduleAlarms();
                 switchServiceEnabled();
+                switchServiceStatus(false);
+
                 btnStart.setEnabled(false);
                 btnStop.setEnabled(true);
             }
@@ -59,6 +87,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 cancelAlarms();
                 switchServiceEnabled();
+                switchServiceStatus(false);
+
                 btnStart.setEnabled(true);
                 btnStop.setEnabled(false);
 
@@ -104,11 +134,26 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private boolean isServiceEnabled(){
+    private int checkServiceStatus() {
+        return pref.getInt(PREF_SERV_STATUS_KEY, 1);
+    }
+
+    private void switchServiceStatus(boolean error) {
+        if (error) {
+            pref.edit().putInt(PREF_SERV_STATUS_KEY, 2); //ERROR
+        } else if (checkServiceStatus() == 0) {
+            pref.edit().putInt(PREF_SERV_STATUS_KEY, 1).apply(); //User shutdown
+        } else {
+            pref.edit().putInt(PREF_SERV_STATUS_KEY, 0).apply(); //User start
+        }
+        setupStatus();
+    }
+
+    private boolean isServiceEnabled() {
         return pref.getBoolean(PREF_SERV_ENABLED_KEY, false);
     }
 
-    private void switchServiceEnabled(){
+    private void switchServiceEnabled() {
         pref.edit().putBoolean(PREF_SERV_ENABLED_KEY, (!isServiceEnabled())).apply();
     }
 }

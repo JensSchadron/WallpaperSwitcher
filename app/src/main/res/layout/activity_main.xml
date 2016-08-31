@@ -30,20 +30,20 @@
                     android:text="@string/tv_service_status" />
 
                 <TextView
+                    android:id="@+id/tv_service_status"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
-                    android:layout_gravity="center" />
+                    android:layout_gravity="center"
+                    android:text=""/>
 
                 <LinearLayout
                     android:layout_marginTop="10dp"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-
                     android:orientation="horizontal">
 
                     <Button
-
                         android:id="@+id/btnStart"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -66,6 +66,11 @@
 
         </android.support.v7.widget.CardView>
 
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        </android.support.v7.widget.CardView>
 
     </LinearLayout>
 </ScrollView>
