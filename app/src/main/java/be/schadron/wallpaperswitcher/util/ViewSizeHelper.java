@@ -19,7 +19,7 @@ public class ViewSizeHelper {
         }
 
         //set listAdapter in loop for getting final size
-        int desiredWidth = View.MeasureSpec.makeMeasureSpec(list.getWidth(), View.MeasureSpec.AT_MOST);
+        int desiredWidth = View.MeasureSpec.makeMeasureSpec(list.getWidth(), View.MeasureSpec.UNSPECIFIED);
         int totalHeight = 0;
         View view = null;
         for (int i = 0; i < myListAdapter.getCount(); i++) {

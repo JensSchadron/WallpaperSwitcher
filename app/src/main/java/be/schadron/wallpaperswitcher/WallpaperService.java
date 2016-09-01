@@ -4,9 +4,6 @@ import android.app.IntentService;
 import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
@@ -30,8 +27,9 @@ public class WallpaperService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         Log.i("Wallpaper Switcher", "Switching wallpaper...");
         try {
-            if (intent.getExtras().getInt("request code") != 0) {
-                int resId = getResources().getIdentifier("w".concat(String.valueOf(intent.getExtras().getInt("request code"))), "drawable", "be.schadron.wallpaperswitcher");
+            String code = intent.getExtras().getString("request code");
+            if (code != null && !code.isEmpty()) {
+                int resId = getResources().getIdentifier("w".concat(code), "drawable", "be.schadron.wallpaperswitcher");
 
                 //BitmapFactory.Options options = new BitmapFactory.Options();
                 //options.inScaled = true;

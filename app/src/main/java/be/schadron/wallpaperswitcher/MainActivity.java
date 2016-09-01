@@ -6,6 +6,8 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -30,6 +32,9 @@ public class MainActivity extends AppCompatActivity {
     private final static String PREF_SERV_STATUS_KEY = "serv_status";
     private final static String[] PREF_REQUESTCODE_TIME = {"20700", "20701", "20702", "20703", "20704"};
 
+    private final static int green = Color.rgb(76, 175, 80);
+    private final static int red = Color.rgb(255, 70, 0);
+
     private AlarmManager alarmMgr;
 
     private SharedPreferences pref;
@@ -51,24 +56,23 @@ public class MainActivity extends AppCompatActivity {
     private void setupStatus() {
         final TextView tvServStatus = (TextView) findViewById(R.id.tv_service_status);
 
-        String strStatus;
-
         switch (checkServiceStatus()) {
             case 0:
-                strStatus = "Up and running";
+                tvServStatus.setText("Up and running");
+                tvServStatus.setTextColor(green);
                 break;
             case 1:
-                strStatus = "Shutdown";
+                tvServStatus.setText("Shutdown");
+                tvServStatus.setTextColor(red);
                 break;
             case 2:
-                strStatus = "An error occured";
+                tvServStatus.setText("An error occured");
+                tvServStatus.setTextColor(red);
                 break;
             default:
-                strStatus = "";
+                tvServStatus.setText("");
+                tvServStatus.setTextColor(Color.GRAY);
         }
-
-        tvServStatus.setText(strStatus);
-
     }
 
     public void setupOnClickListeners() {
