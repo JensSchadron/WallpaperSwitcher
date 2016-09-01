@@ -2,6 +2,7 @@ package be.schadron.wallpaperswitcher;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,19 +10,28 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.Locale;
+
+import be.schadron.wallpaperswitcher.adapters.TimeSettingsAdapter;
+import be.schadron.wallpaperswitcher.util.ViewSizeHelper;
 
 public class MainActivity extends AppCompatActivity {
     private final static String PREF_SERV_ENABLED_KEY = "serv_enabled";
     private final static String PREF_SERV_STATUS_KEY = "serv_status";
+    private final static String[] PREF_REQUESTCODE_TIME = {"20700", "20701", "20702", "20703", "20704"};
 
     private AlarmManager alarmMgr;
 
-    private SharedPreferences.Editor editor;
     private SharedPreferences pref;
 
     @Override
@@ -35,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
         setupStatus();
         setupOnClickListeners();
+        setupTimeSettings();
     }
 
     private void setupStatus() {
@@ -96,14 +107,37 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void setupTimeSettings() {
+        final ListView listView = (ListView) findViewById(R.id.lv_timestap_settings);
+
+        listView.setAdapter(new TimeSettingsAdapter(MainActivity.this, new ArrayList<String>(){{
+            for (String aPREF_REQUESTCODE_TIME : PREF_REQUESTCODE_TIME) {
+                add(String.format(Locale.ROOT, "Wallpaper %d-%s", (Integer.parseInt(aPREF_REQUESTCODE_TIME.substring(4))) + 1, getRequestcodeTime(aPREF_REQUESTCODE_TIME)));
+            }
+        }}));
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, final int pos, long l) {
+                new TimePickerDialog(MainActivity.this, new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker timePicker, int hour, int minutes) {
+                        setRequestcodeTime("2070" + pos, String.format(Locale.ROOT, "%02d:%02d", hour, minutes));
+                        setupTimeSettings();
+                    }
+                }, Integer.parseInt(getRequestcodeTime("2070" + pos).split(":")[0]), Integer.parseInt(getRequestcodeTime("2070" + pos).split(":")[1]), true).show();
+            }
+        });
+        ViewSizeHelper.setListViewSize(listView);
+    }
+
     private void scheduleAlarms() {
         Log.i("Wallpaper Switcher", "Service is being started.");
-        for (Integer requestcode : AlarmReceiver.REQUEST_CODES.keySet()) {
-            String time = AlarmReceiver.REQUEST_CODES.get(requestcode);
+        for (String requestcode : PREF_REQUESTCODE_TIME) {
+            String time = getRequestcodeTime(requestcode);
 
             Intent i = new Intent(getApplicationContext(), AlarmReceiver.class);
             i.putExtra("request code", requestcode);
-            final PendingIntent pIntent = PendingIntent.getBroadcast(this, requestcode, i, PendingIntent.FLAG_UPDATE_CURRENT);
+            final PendingIntent pIntent = PendingIntent.getBroadcast(this, Integer.parseInt(requestcode), i, PendingIntent.FLAG_UPDATE_CURRENT);
 
             int hour = Integer.parseInt(time.split(":")[0]);
             int minute = Integer.parseInt(time.split(":")[1]);
@@ -126,9 +160,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void cancelAlarms() {
         Log.i("Wallpaper Switcher", "Service is being cancelled.");
-        for (Integer requestcode : AlarmReceiver.REQUEST_CODES.keySet()) {
+        for (String requestcode : PREF_REQUESTCODE_TIME) {
             Intent i = new Intent(getApplicationContext(), AlarmReceiver.class);
-            final PendingIntent pIntent = PendingIntent.getBroadcast(this, requestcode, i, PendingIntent.FLAG_UPDATE_CURRENT);
+            final PendingIntent pIntent = PendingIntent.getBroadcast(this, Integer.parseInt(requestcode), i, PendingIntent.FLAG_UPDATE_CURRENT);
 
             alarmMgr.cancel(pIntent);
         }
@@ -156,4 +190,14 @@ public class MainActivity extends AppCompatActivity {
     private void switchServiceEnabled() {
         pref.edit().putBoolean(PREF_SERV_ENABLED_KEY, (!isServiceEnabled())).apply();
     }
+
+    private String getRequestcodeTime(String requestcode){
+        return pref.getString(requestcode, "08:30");
+    }
+
+    private void setRequestcodeTime(String requestcode, String time){
+        pref.edit().putString(requestcode, time).apply();
+    }
+
+
 }
